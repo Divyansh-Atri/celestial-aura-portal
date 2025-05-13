@@ -6,6 +6,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { CalendarIcon, Loader2 } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 type TimeSlot = {
   id: string;
@@ -16,12 +21,12 @@ type TimeSlot = {
 const AppointmentForm: React.FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [service, setService] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
   const [message, setMessage] = useState('');
-  
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Sample time slots - in a real app, these would be dynamically loaded based on availability
   const timeSlots: TimeSlot[] = [
@@ -32,90 +37,74 @@ const AppointmentForm: React.FC = () => {
     { id: '5', time: '4:00 PM', available: true },
     { id: '6', time: '5:30 PM', available: false },
   ];
-  
-  const handleBookAppointment = (e: React.FormEvent) => {
+
+  const handleBookAppointment = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name || !email || !service || !selectedDate || !selectedTimeSlot) {
+    if (!name || !email || !service || !selectedDate || !selectedTimeSlot || !phone) {
       toast.error("Please fill in all required fields");
       return;
     }
     
-    // In a real app, this would send the booking to a server
-    toast.success("Your appointment request has been received!", {
-      description: "We'll confirm your booking via email shortly."
-    });
-    
-    // Reset form
-    setName('');
-    setEmail('');
-    setService('');
-    setSelectedDate(null);
-    setSelectedTimeSlot(null);
-    setMessage('');
-  };
-  
-  // Generate calendar days for current month view
-  const getDaysInMonth = (year: number, month: number) => {
-    return new Date(year, month + 1, 0).getDate();
-  };
-  
-  const getFirstDayOfMonth = (year: number, month: number) => {
-    return new Date(year, month, 1).getDay();
-  };
-  
-  // Generate calendar grid
-  const year = currentMonth.getFullYear();
-  const month = currentMonth.getMonth();
-  const daysInMonth = getDaysInMonth(year, month);
-  const firstDayOfMonth = getFirstDayOfMonth(year, month);
-  
-  const days = [];
-  // Add empty cells for days before the first day of month
-  for (let i = 0; i < firstDayOfMonth; i++) {
-    days.push(null);
-  }
-  // Add days of month
-  for (let i = 1; i <= daysInMonth; i++) {
-    days.push(i);
-  }
-  
-  // Next and previous month navigation
-  const nextMonth = () => {
-    setCurrentMonth(new Date(year, month + 1, 1));
-  };
-  
-  const prevMonth = () => {
-    setCurrentMonth(new Date(year, month - 1, 1));
-  };
-  
-  // Format date for display
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    setIsSubmitting(true);
+
+    try {
+      // Get the selected time slot text
+      const timeSlot = timeSlots.find(slot => slot.id === selectedTimeSlot);
+      
+      // Create the appointment data object
+      const appointmentData = {
+        name,
+        email,
+        phone,
+        service,
+        date: format(selectedDate, 'MMMM dd, yyyy'),
+        time: timeSlot?.time,
+        message,
+        submittedAt: new Date().toISOString()
+      };
+      
+      // In a real application, you would send this data to a server
+      // For this example, we'll simulate a network request with a timeout
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      console.log('Appointment booked:', appointmentData);
+      
+      // Show success message
+      toast.success("Appointment Booked Successfully!", {
+        description: `Your appointment on ${format(selectedDate, 'MMMM dd, yyyy')} at ${timeSlot?.time} has been sent to the astrologer. You'll receive a confirmation email shortly.`,
+        duration: 6000
+      });
+      
+      // Reset form
+      setName('');
+      setEmail('');
+      setPhone('');
+      setService('');
+      setSelectedDate(null);
+      setSelectedTimeSlot(null);
+      setMessage('');
+    } catch (error) {
+      console.error('Error booking appointment:', error);
+      toast.error("Failed to book appointment. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   // Check if date is in the past
-  const isPastDate = (day: number) => {
+  const isPastDate = (date: Date) => {
     const today = new Date();
-    const checkDate = new Date(year, month, day);
-    return checkDate < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    today.setHours(0, 0, 0, 0);
+    return date < today;
   };
   
-  // Check if date is selectable (not in past, not a Sunday)
-  const isDateSelectable = (day: number) => {
-    if (!day) return false;
-    if (isPastDate(day)) return false;
-    
-    const checkDate = new Date(year, month, day);
-    return checkDate.getDay() !== 0; // Sunday = 0
-  };
-
   return (
     <div className="glass-effect rounded-lg p-6">
       <form onSubmit={handleBookAppointment}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
-            <Label htmlFor="name" className="text-celestial-stardust mb-2 block">Your Name</Label>
+            <Label htmlFor="name" className="text-celestial-stardust mb-2 block">Your Name *</Label>
             <Input
               id="name"
               value={name}
@@ -126,7 +115,7 @@ const AppointmentForm: React.FC = () => {
             />
           </div>
           <div>
-            <Label htmlFor="email" className="text-celestial-stardust mb-2 block">Email Address</Label>
+            <Label htmlFor="email" className="text-celestial-stardust mb-2 block">Email Address *</Label>
             <Input
               id="email"
               type="email"
@@ -138,12 +127,26 @@ const AppointmentForm: React.FC = () => {
             />
           </div>
         </div>
+
+        <div className="mb-6">
+          <Label htmlFor="phone" className="text-celestial-stardust mb-2 block">Phone Number *</Label>
+          <Input
+            id="phone"
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="bg-celestial-dark-blue/50 border-celestial-stardust/20 text-celestial-stardust"
+            placeholder="Your phone number"
+            required
+          />
+        </div>
         
         <div className="mb-6">
-          <Label htmlFor="service" className="text-celestial-stardust mb-2 block">Select Service</Label>
+          <Label htmlFor="service" className="text-celestial-stardust mb-2 block">Select Service *</Label>
           <Select
             value={service}
             onValueChange={setService}
+            required
           >
             <SelectTrigger className="bg-celestial-dark-blue/50 border-celestial-stardust/20 text-celestial-stardust">
               <SelectValue placeholder="Choose a reading type" />
@@ -153,81 +156,52 @@ const AppointmentForm: React.FC = () => {
               <SelectItem value="compatibility">Relationship Compatibility</SelectItem>
               <SelectItem value="career">Career Path Reading</SelectItem>
               <SelectItem value="transit">Transit Forecast</SelectItem>
+              <SelectItem value="custom">Custom Consultation</SelectItem>
             </SelectContent>
           </Select>
         </div>
         
         <div className="mb-6">
-          <Label className="text-celestial-stardust mb-2 block">Select Date</Label>
+          <Label className="text-celestial-stardust mb-2 block">Select Date *</Label>
           
-          <div className="mb-4">
-            <div className="flex justify-between items-center mb-4">
-              <Button 
-                type="button"
-                variant="ghost" 
-                onClick={prevMonth}
-                className="text-celestial-stardust hover:text-celestial-gold"
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-full justify-start text-left font-normal bg-celestial-dark-blue/50 border-celestial-stardust/20",
+                  !selectedDate && "text-muted-foreground"
+                )}
               >
-                ← Prev
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {selectedDate ? format(selectedDate, 'PPP') : <span>Pick a date</span>}
               </Button>
-              <h3 className="text-celestial-gold font-serif">
-                {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-              </h3>
-              <Button 
-                type="button"
-                variant="ghost" 
-                onClick={nextMonth}
-                className="text-celestial-stardust hover:text-celestial-gold"
-              >
-                Next →
-              </Button>
-            </div>
-            
-            <div className="grid grid-cols-7 gap-1 text-center">
-              {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map((day, i) => (
-                <div key={i} className="text-xs text-celestial-stardust/70 py-1">{day}</div>
-              ))}
-              
-              {days.map((day, i) => (
-                <div key={i} className="aspect-square">
-                  {day ? (
-                    <button
-                      type="button"
-                      onClick={() => isDateSelectable(day) ? setSelectedDate(new Date(year, month, day)) : null}
-                      disabled={!isDateSelectable(day)}
-                      className={`w-full h-full flex items-center justify-center text-sm rounded-full
-                        ${isPastDate(day) ? 'text-celestial-stardust/30 cursor-not-allowed' : 
-                          selectedDate && 
-                          selectedDate.getDate() === day && 
-                          selectedDate.getMonth() === month &&
-                          selectedDate.getFullYear() === year ? 
-                            'bg-celestial-gold text-celestial-midnight' : 
-                            'text-celestial-stardust hover:bg-celestial-gold/20'}
-                      `}
-                    >
-                      {day}
-                    </button>
-                  ) : (
-                    <span className="w-full h-full flex items-center justify-center text-sm"></span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                disabled={(date) => isPastDate(date) || date.getDay() === 0}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
           
           {selectedDate && (
-            <div className="mb-6">
+            <div className="mt-6">
               <Label className="text-celestial-stardust mb-2 block">
-                Available Times for {formatDate(selectedDate)}
+                Available Times for {format(selectedDate, 'MMMM dd, yyyy')} *
               </Label>
-              <div className="appointment-grid">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {timeSlots.map((slot) => (
                   <button
                     key={slot.id}
                     type="button"
                     disabled={!slot.available}
                     onClick={() => setSelectedTimeSlot(slot.id)}
-                    className={`time-slot p-2 text-sm text-center border rounded-md
+                    className={`p-2 text-sm text-center border rounded-md transition
                       ${!slot.available ? 'border-celestial-stardust/10 text-celestial-stardust/30 cursor-not-allowed' : 
                         selectedTimeSlot === slot.id ? 'bg-celestial-gold/20 border-celestial-gold text-celestial-gold' : 
                           'border-celestial-stardust/20 text-celestial-stardust hover:bg-celestial-gold/10'}
@@ -255,8 +229,16 @@ const AppointmentForm: React.FC = () => {
         <Button 
           type="submit" 
           className="w-full bg-celestial-gold hover:bg-celestial-amber text-celestial-midnight font-bold py-3"
+          disabled={isSubmitting}
         >
-          Book Your Reading
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+              Processing...
+            </>
+          ) : (
+            'Book Your Reading'
+          )}
         </Button>
       </form>
     </div>
