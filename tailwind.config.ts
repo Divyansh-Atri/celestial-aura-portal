@@ -122,8 +122,9 @@ export default {
 				'twinkle': 'twinkle 4s ease-in-out infinite'
 			},
 			fontFamily: {
-				'serif': ['Playfair Display', 'serif'],
-				'sans': ['Raleway', 'sans-serif']
+				'serif': ['Cinzel', 'Cormorant Garamond', 'serif'],
+				'sans': ['Raleway', 'sans-serif'],
+                'display': ['Cormorant Garamond', 'serif']
 			}
 		}
 	},

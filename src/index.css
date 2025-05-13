@@ -1,5 +1,5 @@
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Raleway:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@300;400;500;600;700&family=Raleway:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -50,6 +50,15 @@
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif;
+    letter-spacing: 0.02em;
+  }
+  
+  h1 {
+    @apply leading-tight;
+  }
+  
+  p {
+    @apply leading-relaxed;
   }
 }
 
@@ -91,4 +100,37 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 10px;
+}
+
+/* Elegant form styles */
+.form-input {
+  @apply w-full rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-white/50 outline-none transition duration-300 focus:border-celestial-gold/50 focus:outline-none focus:ring-1 focus:ring-celestial-gold/50;
+}
+
+.form-label {
+  @apply mb-2 block text-sm font-medium text-celestial-stardust;
+}
+
+/* Elegant transitions */
+.elegant-transition {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+/* Text gradient styles */
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-white via-celestial-stardust to-celestial-gold;
+}
+
+/* Beautiful button hover effect */
+.button-hover-effect {
+  @apply relative overflow-hidden;
+}
+
+.button-hover-effect::after {
+  content: '';
+  @apply absolute inset-0 bg-white/20 opacity-0 transition-opacity duration-300;
+}
+
+.button-hover-effect:hover::after {
+  @apply opacity-100;
 }
