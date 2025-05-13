@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,14 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				celestial: {
+					'dark-blue': '#0F1729',
+					'deep-purple': '#2C1B47',
+					'midnight': '#171530',
+					'stardust': '#CCBCDB',
+					'gold': '#D4AF37',
+					'amber': '#FFBF00'
 				}
 			},
 			borderRadius: {
@@ -84,11 +93,37 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-10px)' }
+				},
+				'pulse-gentle': {
+					'0%, 100%': { opacity: '1' },
+					'50%': { opacity: '0.7' }
+				},
+				'rotate-slow': {
+					'0%': { transform: 'rotate(0deg)' },
+					'100%': { transform: 'rotate(360deg)' }
+				},
+				'twinkle': {
+					'0%, 100%': { opacity: '0.2' },
+					'50%': { opacity: '1' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'float': 'float 6s ease-in-out infinite',
+				'pulse-gentle': 'pulse-gentle 4s ease-in-out infinite',
+				'rotate-slow': 'rotate-slow 60s linear infinite',
+				'rotate-slower': 'rotate-slow 120s linear infinite',
+				'rotate-reverse': 'rotate-slow 80s linear infinite reverse',
+				'twinkle': 'twinkle 4s ease-in-out infinite'
+			},
+			fontFamily: {
+				'serif': ['Playfair Display', 'serif'],
+				'sans': ['Raleway', 'sans-serif']
 			}
 		}
 	},
