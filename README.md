@@ -71,3 +71,16 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+
+## Running the Application
+
+
+```bash
+# Start the backend server:
+cd ADMIN_PAGE/backend
+npm run dev
+# Open another terminal and start the frontend server
+cd ADMIN/frontend
+npm run dev
+```
+
