@@ -10,7 +10,7 @@ const app = express();
 app.get("/", (req,res) =>{
     res.send("kdv");
 });
-const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
+const allowedOrigins = ["http://localhost:5173", "http://localhost:5174","http://localhost:4999"];
 app.use(cors({
     origin: function (origin, callback) {
         if (!origin || allowedOrigins.includes(origin)) {
@@ -22,10 +22,9 @@ app.use(cors({
     credentials: true,
 }));
 
-
 app.use(express.json());
 app.use(cookieParser());
-app.use("/api/auth", authRoutes);
+app.use("/api", authRoutes);
 app.listen(4999, () => {
     connectDB();
     console.log("server is running");

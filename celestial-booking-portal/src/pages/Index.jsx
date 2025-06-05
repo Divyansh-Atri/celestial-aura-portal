@@ -1,9 +1,8 @@
-
 import React from 'react';
 import CelestialBackground from '@/components/CelestialBackground';
 import BookingForm from '@/components/BookingForm';
 import { Card, CardContent } from '@/components/ui/card';
-import { Star, Moon, Sun, Sparkles } from 'lucide-react';
+import { Star, Moon, Sun, Sparkles, Clock } from 'lucide-react';
 
 const Index = () => {
   const services = [
